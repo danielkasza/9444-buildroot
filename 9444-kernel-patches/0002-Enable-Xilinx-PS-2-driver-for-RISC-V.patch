@@ -1,0 +1,46 @@
+From 69cb7cc95d08a2c3f17b44874388d85485a9a48c Mon Sep 17 00:00:00 2001
+From: Daniel Kasza <daniel@kasza.hu>
+Date: Tue, 10 Mar 2020 22:26:37 -0400
+Subject: [PATCH 2/2] Enable Xilinx PS/2 driver for RISC-V.
+
+---
+ drivers/input/serio/Kconfig      |  1 -
+ drivers/input/serio/xilinx_ps2.c | 10 ++++++++++
+ 2 files changed, 10 insertions(+), 1 deletion(-)
+
+diff --git a/drivers/input/serio/Kconfig b/drivers/input/serio/Kconfig
+index f3e18f8ef..b9e61f7ca 100644
+--- a/drivers/input/serio/Kconfig
++++ b/drivers/input/serio/Kconfig
+@@ -192,7 +192,6 @@ config SERIO_RAW
+ 
+ config SERIO_XILINX_XPS_PS2
+ 	tristate "Xilinx XPS PS/2 Controller Support"
+-	depends on PPC || MICROBLAZE
+ 	help
+ 	  This driver supports XPS PS/2 IP from the Xilinx EDK on
+ 	  PowerPC platform.
+diff --git a/drivers/input/serio/xilinx_ps2.c b/drivers/input/serio/xilinx_ps2.c
+index 960d7601f..ee2abc788 100644
+--- a/drivers/input/serio/xilinx_ps2.c
++++ b/drivers/input/serio/xilinx_ps2.c
+@@ -19,6 +19,16 @@
+ #include <linux/of_irq.h>
+ #include <linux/of_platform.h>
+ 
++/* RISC-V workaround. */
++static inline u32 in_be32(const volatile void __iomem *addr) {
++	u32 raw = __raw_readl(addr);
++	return be32_to_cpu(raw);
++}
++static inline void out_be32(const volatile void __iomem *addr, u32 value) {
++	u32 raw = cpu_to_be32(value);
++	__raw_writel(raw, addr);
++}
++
+ #define DRIVER_NAME		"xilinx_ps2"
+ 
+ /* Register offsets for the xps2 device */
+-- 
+2.17.1
+
