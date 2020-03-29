@@ -1,7 +1,7 @@
 From 05d056579f84f0fe54817b0bf1752a6c549ec2e3 Mon Sep 17 00:00:00 2001
 From: Daniel Kasza <daniel@kasza.hu>
 Date: Tue, 10 Mar 2020 22:26:04 -0400
-Subject: [PATCH 1/2] Allow uartlite to work with 64b base address.
+Subject: [PATCH 1/5] Allow uartlite to work with 64b base address.
 
 9444 does not have 32b addressable I/O space.
 ---

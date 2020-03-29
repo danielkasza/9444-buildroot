@@ -1,7 +1,7 @@
 From 69cb7cc95d08a2c3f17b44874388d85485a9a48c Mon Sep 17 00:00:00 2001
 From: Daniel Kasza <daniel@kasza.hu>
 Date: Tue, 10 Mar 2020 22:26:37 -0400
-Subject: [PATCH 2/2] Enable Xilinx PS/2 driver for RISC-V.
+Subject: [PATCH 2/5] Enable Xilinx PS/2 driver for RISC-V.
 
 ---
  drivers/input/serio/Kconfig      |  1 -

@@ -1,0 +1,50 @@
+From 2f11b330028c196c7bca7845c2efb7b9e64ff149 Mon Sep 17 00:00:00 2001
+From: Daniel Kasza <daniel@kasza.hu>
+Date: Sun, 29 Mar 2020 16:22:32 -0400
+Subject: [PATCH 4/5] Disable FIFO size detection on Xilinx SPI driver.
+
+This is not working correctly, and it causes sporadic boot failures.
+---
+ drivers/spi/spi-xilinx.c | 12 ++++++++++--
+ 1 file changed, 10 insertions(+), 2 deletions(-)
+
+diff --git a/drivers/spi/spi-xilinx.c b/drivers/spi/spi-xilinx.c
+index d5f9d5fbb..e4a7b5f14 100644
+--- a/drivers/spi/spi-xilinx.c
++++ b/drivers/spi/spi-xilinx.c
+@@ -361,6 +361,10 @@ static int xilinx_spi_find_buffer_size(struct xilinx_spi *xspi)
+ 	u8 sr;
+ 	int n_words = 0;
+ 
++	// dkasza: This is bogus!
++	// The code below completely ignores that the controller could transfer bytes during this loop.
++	// This causes the loop below to overestimate the size of the FIFO.
++#if 0
+ 	/*
+ 	 * Before the buffer_size detection we reset the core
+ 	 * to make sure we start with a clean state.
+@@ -374,6 +378,10 @@ static int xilinx_spi_find_buffer_size(struct xilinx_spi *xspi)
+ 		sr = xspi->read_fn(xspi->regs + XSPI_SR_OFFSET);
+ 		n_words++;
+ 	} while (!(sr & XSPI_SR_TX_FULL_MASK));
++#endif
++
++	// FIXME: Pull this from the devtree?
++	n_words = 256;
+ 
+ 	return n_words;
+ }
+@@ -486,8 +494,8 @@ static int xilinx_spi_probe(struct platform_device *pdev)
+ 		goto put_master;
+ 	}
+ 
+-	dev_info(&pdev->dev, "at 0x%08llX mapped to 0x%p, irq=%d\n",
+-		(unsigned long long)res->start, xspi->regs, xspi->irq);
++	dev_info(&pdev->dev, "at 0x%08llX mapped to 0x%p, irq=%d, buffer_size=%d\n",
++		(unsigned long long)res->start, xspi->regs, xspi->irq, xspi->buffer_size);
+ 
+ 	if (pdata) {
+ 		for (i = 0; i < pdata->num_devices; i++)
+-- 
+2.17.1
+
